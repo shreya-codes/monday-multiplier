@@ -1,6 +1,7 @@
-import HistoryModel from '../models/History';
-import { HistoryRecord } from '../types/History';
-import Item from '../models/Item';
+import HistoryModel from '@models/History';
+import { HistoryRecord } from '@/types/history';
+import Item from '@models/Item';
+import { BaseError } from '@utils/baseError';
 
 const addHistory = async (itemId: string, history: HistoryRecord) => {
     try {
@@ -18,13 +19,16 @@ const addHistory = async (itemId: string, history: HistoryRecord) => {
       );
       return historyRecord;
     } catch (error) {
-      console.error('Error in addHistory:', error);
-      throw error;
+      throw new BaseError("Failed to add history", "ADD_HISTORY_FAILED", 500, error);
     }
   }
 
 const getHistory = async (itemId: string) => {
+  try {
     return await HistoryModel.find({ itemId: itemId }).sort({ createdAt: -1 });
+  } catch (error) {
+    throw new BaseError("Failed to get history", "GET_HISTORY_FAILED", 500, error);
+  }
 }
 
 export { addHistory, getHistory }; 

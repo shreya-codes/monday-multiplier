@@ -1,46 +1,46 @@
-import { getMultiple } from "./calculationService";
-import { upsertItem } from "./itemService";
-import { addHistory } from "./historyService";
-import { updateOutputColumnValue } from "./mondayservice";
+import { getMultiple } from "@services/calculationService";
+import { upsertItem } from "@services/itemService";
+import { addHistory } from "@services/historyService";
+import { updateOutputColumnValue } from "@services/mondayservice";
 
-interface InputChangeControllerProps {
-    boardId: string;
-    pulseId: string;
-    value: {
-        value: string;
-      };
-  }
+import { BaseError } from "@utils/baseError";
+import logger from "@utils/logger";
 
-  const validateAndParseInput = async (value: string) => {
+import { InputChangeProps } from "@/types/updateColumnParams";
+
+const validateAndParseInput = async (value: string): Promise<number> => {
     const inputValue = value;
 
     if (!inputValue) {
-        throw new Error("Input value is required");
+        throw new BaseError("Input value is required", "INPUT_VALUE_REQUIRED", 400  );
     }
     const parsedInput = parseFloat(inputValue);
     if (isNaN(parsedInput)) {
-        throw new Error("Invalid input value: not a number");
-    }   
+        throw new BaseError("Invalid input value: not a number", "INVALID_INPUT_VALUE", 400);
+    }
     return parsedInput;
-  }
+}
 
-  const processInputChange = async ({boardId,pulseId,value}: InputChangeControllerProps) => {
+const processInputChange = async ({ boardId, pulseId, value }: InputChangeProps) => {
     try {
         // Case: input column is removed => value is null
         if (value === null) {
-            console.log("Input is null or invalid. Clearing output...");
+            logger.info("Input is null or invalid. Clearing output...");
             await updateOutputColumnValue(boardId, pulseId, null);
-            return
+            return {
+                success: true,
+                message: "Output column cleared successfully"
+            }
         }
-        
-        const parsedInput = await validateAndParseInput(value.value) ;
+
+        const parsedInput = await validateAndParseInput(value.value);
         const item = await upsertItem({
             itemId: pulseId,
             input: parsedInput,
         });
-    const factor = item && item.factor ? item.factor : 1;
-    const result = getMultiple(parsedInput, factor);
-   
+        const factor = item && item.factor ? item.factor : 1;
+        const result = getMultiple(parsedInput, factor);
+
         await addHistory(pulseId, {
             itemId: pulseId,
             factor: factor,
@@ -48,12 +48,15 @@ interface InputChangeControllerProps {
             output: result,
             createdAt: new Date()
         });
-    await updateOutputColumnValue(boardId, pulseId, result);
-    return item;
-} catch (error) {
-    console.error('Error in processInputChange:', error);
-    throw error;
-}
+        await updateOutputColumnValue(boardId, pulseId, result);
+        return {
+            success: true,
+            message: "Output column updated successfully",
+            data: item
+        }
+    } catch (error) {
+        throw new BaseError("Failed to process input change", "PROCESS_INPUT_CHANGE_FAILED", 500, error);
+    }
 }
 
 export { processInputChange };

@@ -1,3 +1,4 @@
+import 'tsconfig-paths/register';
 //Basic Express Server with TypeScript and nodejs with mongodb
 
 import dotenv from "dotenv";
@@ -5,13 +6,14 @@ dotenv.config();
 
 import express from "express";
 import bodyParser from "body-parser";
-import cors from "cors";
-import connectToDatabase from "./src/config/database";
+import cors from "cors";    
+import connectToDatabase from "@config/database";
 
 //importing the routes
-import Routes from "./src/routes";
-import WebhookRoutes from "./src/routes/webhooks";
-import ItemsRoutes from "./src/routes/items";
+import Routes from "@routes/index";
+import WebhookRoutes from "@routes/webhooks";
+import ItemsRoutes from "@routes/items";
+import logger from "@utils/logger";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -36,10 +38,10 @@ const startServer = async () => {
     try {
         await connectToDatabase();
         app.listen(port, () => {
-            console.log(`Server is running on port ${port}`);
+            logger.info(`Server is running on port ${port}`);
         });
     } catch (error) {
-        console.error('Failed to start server:', error);
+        logger.error('Failed to start server:', error);
     }
 };
 

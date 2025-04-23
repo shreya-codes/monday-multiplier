@@ -14,11 +14,6 @@ const itemSchema = new mongoose.Schema({
   input: {
     type: Number,
     required: false,
-  },
-  //array of ids of the items that have been multiplied
-  history:{
-    type: Array,
-    required: true
   }
 });
 

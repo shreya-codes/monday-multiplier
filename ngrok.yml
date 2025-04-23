@@ -1,0 +1,8 @@
+version: "2"
+tunnels:
+  monday-app:
+    proto: http
+    addr: 3000
+  monday-multiplier:
+    proto: http
+    addr: 3001 

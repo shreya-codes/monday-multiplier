@@ -1,6 +1,6 @@
 import {Request, Response, NextFunction } from 'express';
-import { processInputChange } from '../services/columnUpdateService';
-
+import { processInputChange } from '@services/columnUpdateService';
+import { BaseError } from '@/utils/baseError';
 
 const inputChangeController = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -8,10 +8,10 @@ const inputChangeController = async (req: Request, res: Response, next: NextFunc
     const outputData = await processInputChange(event);
     res.status(200).json(outputData);
   } catch (error) {
-    if (error instanceof Error) {
-      return res.status(500).json({ error: error.message });
+    if (error instanceof BaseError) {
+      return res.status(error.statusCode).json({ error: error.message });
     }
-    res.status(500).json({ error: 'An unexpected error occurred' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 }
 export { inputChangeController };
