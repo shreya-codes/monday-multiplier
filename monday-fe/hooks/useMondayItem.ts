@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import mondaySdk from 'monday-sdk-js'
 import { MondayContext,MondayItem } from '../src/types/monday'
-import logger from '@utils/logger'
 const monday = mondaySdk()
 
 
@@ -26,7 +25,6 @@ const useMondayItem = () => {
           boardId: boardId
         })
       } catch (error) {
-        logger.error('Error getting Monday item:', error)
         setError(error instanceof Error ? error.message : 'Unknown error occurred')
       }
     }
