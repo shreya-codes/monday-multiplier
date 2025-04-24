@@ -30,7 +30,10 @@ const useMutation = () => {
         message: string
         error: string
       }>
+      setIsError(true)
+      setResponseData(errorResponse.response)
       await onError?.(errorResponse)
+      return errorResponse.response
     } finally {
       await new Promise(resolve => setTimeout(resolve, 500))
       await onSettled?.(responseData!)
@@ -50,15 +53,30 @@ const useMutation = () => {
   }
   
   const putRequest = async <T = any>(url: string, args: IMutationOptions): Promise<T | undefined> => {
-    let response = await mutate({
-      ...args,
-      options: {
-        url,
-        method: 'PUT',
-        ...args.options
+    try {
+      const response = await mutate({
+        ...args,
+        options: {
+          url,
+          method: 'PUT',
+          ...args.options
+        }
+      });
+      console.log("response", response);
+      if (!response) {
+        return undefined;
       }
-    })
-    return response as T
+      
+      // If it's an error response, return the error data
+      if (response.status >= 400) {
+        return response.data as T;
+      }
+      
+      return response.data as T;
+    } catch (error) {
+      console.error('Error in putRequest:', error);
+      return undefined;
+    }
   }
 
   const patchRequest = (url: string, args: IMutationOptions) => {

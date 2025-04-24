@@ -14,7 +14,7 @@ const monday = mondaySdk();
 
 const MultiplicationFactor = () => {
   const { item, error } = useMondayItem()
-  
+
   //states
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -70,7 +70,7 @@ const MultiplicationFactor = () => {
       }
     }, 500);
     try {
-      const response = (await putRequest(updateFactorUrl(item.id), {
+      const response = await putRequest(updateFactorUrl(item.id), {
         options: {
           data: {
             factor: Number(multiplicationFactor),
@@ -78,11 +78,28 @@ const MultiplicationFactor = () => {
             changeEvent: 'factor'
           }
         }
-      })) as unknown as { data: { history: any; error?: string } };
-      
-      if (response?.data?.history) {
+      });
+      if (!response) {
+        monday.execute("notice", {
+          message: "Failed to update calculation. Please try again.",
+          type: "error",
+          timeout: 10000
+        });
+        return;
+      }
+
+      if (response?.error) {
+        monday.execute("notice", {
+          message: response.error,
+          type: "error",
+          timeout: 10000
+        });
+        return;
+      }
+
+      if (response?.history) {
         setHistory(prev => {
-          const newHistory = [response.data.history, ...prev];
+          const newHistory = [response.history, ...prev];
           return newHistory;
         });
         
@@ -92,18 +109,11 @@ const MultiplicationFactor = () => {
           timeout: 3000
         });
       }
-      else if (response?.data?.error) {
-        monday.execute("notice", {
-          message: response.data.error,
-          type: "error",
-          timeout: 5000
-        });
-      }
     } catch (error) {
       monday.execute("notice", {
         message: "Failed to update calculation. Please try again.",
         type: "error",
-        timeout: 5000
+        timeout: 10000
       });
     } finally {
       clearInterval(interval);

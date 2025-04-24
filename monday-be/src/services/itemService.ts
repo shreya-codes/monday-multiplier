@@ -54,10 +54,15 @@ const updateFactor = async ({factor,boardId,itemId}: UpdateFactorParams) => {
       throw new BaseError("Input column ID not configured", "INPUT_COLUMN_ID_MISSING", 500);
     }
     const input = await getColumnValue(itemId, INPUT_COLUMN_ID);
+    console.log("input", input);
     const item = await upsertItem({
       itemId: itemId,
       factor: factor,
     });
+    if (input === null || input === undefined || input === "") {
+      console.log("input is null");
+      throw new BaseError("Please enter a valid input value", "INVALID_INPUT_VALUE", 400);
+    }
 
     if (item && input && factor) {
       const result = await getMultiple(input, item.factor);
@@ -77,8 +82,8 @@ const updateFactor = async ({factor,boardId,itemId}: UpdateFactorParams) => {
     } else {
       throw new BaseError("Please enter a valid input value", "INVALID_INPUT_VALUE", 400);
     }
-  } catch (error) {
-    throw new BaseError("Failed to update factor", "UPDATE_FACTOR_FAILED", 500, error);
+  } catch (error: any) {
+    throw new BaseError(error.message, "UPDATE_FACTOR_FAILED", 500, error);
   }
 };
 

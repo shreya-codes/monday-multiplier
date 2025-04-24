@@ -101,13 +101,16 @@ const getColumnValue = async (itemId: string, columnId: string) => {
       items (ids: $itemId) {
         column_values(ids:$columnId) {
           value
+          text
         }
       }
     }`;
     const variables = { columnId, itemId };
+    logger.info('Fetching column value with variables:', variables);
     const response = await mondayClient.api(query, { variables }) as MondayApiResponse;
     
     if (response.errors) {
+      logger.error('Monday API error:', response.errors);
       throw new BaseError(
         `Monday API error: ${response.errors[0].message}`,
         'MONDAY_API_ERROR',
@@ -116,9 +119,22 @@ const getColumnValue = async (itemId: string, columnId: string) => {
       );
     }
 
-    const rawValue = response?.data?.items[0]?.column_values[0]?.value || '';
-    return rawValue ? JSON.parse(rawValue) : '';
+    if (!response?.data?.items?.[0]?.column_values?.[0]) {
+      logger.warn('No column value found for item:', itemId);
+      return null;
+    }
+
+    const columnValue = response.data.items[0].column_values[0];
+    const rawValue = columnValue.value || columnValue.text || '';
+    
+    try {
+      return rawValue ? JSON.parse(rawValue) : null;
+    } catch (parseError) {
+      logger.warn('Failed to parse column value, returning raw value:', rawValue);
+      return rawValue;
+    }
   } catch (error) {
+    logger.error('Error in getColumnValue:', error);
     throw new BaseError(
       'Failed to get column value',
       'GET_COLUMN_VALUE_FAILED',
