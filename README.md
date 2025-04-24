@@ -44,8 +44,8 @@ MONGODB_URI=your_mongodb_uri
 
 # Server
 PORT=3000
-ALLOWED_ORIGINS=http://localhost:3001,be_ngrok_url
-
+ALLOWED_ORIGINS=http://localhost:3001,be_ngrok_ur
+```
 #### Frontend (.env)
 ```env
 VITE_API_URL=your_backend_url
@@ -53,7 +53,7 @@ VITE_API_URL=your_backend_url
 
 ## Integration Setup
 
-### Webhook Configuration
+### Webhook Configuration https://support.monday.com/hc/en-us/articles/360003540679-Webhook-integration
 1. **Create a Webhook Integration**
    - Go to your Monday.com board
    - Click on the "Integrate" button (⚡)
@@ -73,7 +73,7 @@ VITE_API_URL=your_backend_url
    - Check your backend logs for webhook receipt
    - Verify output column updates automatically
 
-### Item View Setup
+### Item View Setup https://developer.monday.com/apps/docs/quickstart-view
 
 1. **Create Item View Feature**
    - Go to the Monday.com Developer Center
@@ -102,7 +102,7 @@ git clone https://github.com/shreya-codes/monday-multiplier.git
 cd monday-multiplier
 ```
 
-1. **Start Development Servers**
+2. **Start Development Servers**
    ```bash
    # Terminal 1: Start backend
    cd monday-be
@@ -118,13 +118,13 @@ cd monday-multiplier
    ngrok start --all
    ```
 
-2. **Update URLs**
+3. **Update URLs**
    - Copy your ngrok HTTPS URL
    - Update webhook URL in Monday.com integration
    - Update item view URL in Monday.com developer center
    - Update ALLOWED_ORIGINS in backend .env
 
-3. **Verify Setup**
+4. **Verify Setup**
    - Open an item in your board
    - Confirm item view loads correctly
    - Test input column changes
