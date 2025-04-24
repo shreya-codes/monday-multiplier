@@ -6,4 +6,12 @@ interface InputChangeProps {
       };
 }
 
-export { InputChangeProps };
+interface OutputChangeProps {
+    boardId: string;
+    pulseId: string;
+    value: {
+        value: string;
+    };
+}
+
+export { InputChangeProps, OutputChangeProps };

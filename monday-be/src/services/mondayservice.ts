@@ -7,6 +7,8 @@ const RETRY_DELAY_MS = 1000;
 const DEBOUNCE_DELAY_MS = 500;
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const OUTPUT_COLUMN_ID = process.env.OUTPUT_COLUMN_ID;
+const INPUT_COLUMN_ID = process.env.INPUT_COLUMN_ID;
 
 const debounce = <T extends (...args: any[]) => any>(
   func: T,
@@ -35,7 +37,7 @@ const updateOutputColumnValue = async (boardId: string, itemId: string, value: n
       mutation {
         change_simple_column_value(
           item_id: ${itemId},
-          column_id: "numeric_mkq9k1d7",
+          column_id: "${OUTPUT_COLUMN_ID}",
           board_id: ${boardId},
           value: ${mondayValue}
         ) {

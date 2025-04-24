@@ -1,8 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { updateFactor, getItemHistory, getItem } from '../services/itemService';
 import { BaseError } from '@utils/baseError';
+import logger from '@/utils/logger';
 const updateFactorController = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        logger.info("Updating factor");
         const { factor,boardId} = req.body;
         const itemId = req.params.itemId;
         const outputData = await updateFactor({factor,boardId,itemId});

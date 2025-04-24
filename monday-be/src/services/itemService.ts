@@ -5,9 +5,11 @@ import { getMultiple } from '@services/calculationService';
 import { updateOutputColumnValue, getColumnValue } from '@services/mondayservice';
 import { UpdateFactorParams } from '@/types/updateFactorParams';
 import { addHistory } from '@services/historyService';
-import { COLUMN_ID } from '@/constants/columnId';
 import { BaseError } from '@utils/baseError';
+import logger from '@/utils/logger';
 
+const OUTPUT_COLUMN_ID = process.env.OUTPUT_COLUMN_ID;
+const INPUT_COLUMN_ID = process.env.INPUT_COLUMN_ID;
 
 const upsertItem = async ({ itemId, factor, input }: UpsertItemParams) => {
   const update: any = {};
@@ -48,8 +50,10 @@ const getItem = async (itemId: string) => {
 // Update multiplication factor
 const updateFactor = async ({factor,boardId,itemId}: UpdateFactorParams) => {
   try {
-    const input = await getColumnValue(itemId,COLUMN_ID.INPUT)
-    
+    if (!INPUT_COLUMN_ID) {
+      throw new BaseError("Input column ID not configured", "INPUT_COLUMN_ID_MISSING", 500);
+    }
+    const input = await getColumnValue(itemId, INPUT_COLUMN_ID);
     const item = await upsertItem({
       itemId: itemId,
       factor: factor,
@@ -61,7 +65,7 @@ const updateFactor = async ({factor,boardId,itemId}: UpdateFactorParams) => {
 
       const history = await addHistory(
         itemId,
-        {
+        { 
           itemId: itemId,
           factor: item.factor,
           input: input,
